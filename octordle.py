@@ -20,6 +20,10 @@ class State:
     
 ##############################################################################################
 
+"""
+Given a word, break down the word into a count of the total number of each alphabets and their indices.
+For example: word_dict("SERAI") -> {'S': [1, [0]], 'E': [1, [1]], 'R': [1, [2]], 'A': [1, [3]], 'I': [1, [4]]}
+"""
 def word_dict(word):
   temp = dict()
   for i in range(len(word)):
@@ -30,6 +34,10 @@ def word_dict(word):
       temp[word[i]][1].append(i)
   return temp
 
+"""
+Given an answer, word, and a guess, temp, provide the hint that will be produced.
+For example: colours("SERAI", "EAGER") -> ['y', 'y', 'b', 'b', 'y']
+"""
 def colours(word, temp):
   word_count = word_dict(word)
   temp_count = word_dict(temp)
@@ -61,6 +69,9 @@ def colours(word, temp):
 
   return temp
 
+"""
+
+"""
 def classification(word, word_list):
   pattern = defaultdict(list)
   for answer in word_list:
