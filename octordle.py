@@ -70,7 +70,8 @@ def colours(word, temp):
   return temp
 
 """
-Given a guess, word 
+Given a guess, word and a list of words, classify the list of words into different groups according 
+to the hints given.
 """
 def classification(word, word_list):
   pattern = defaultdict(list)
@@ -78,6 +79,10 @@ def classification(word, word_list):
     pattern["".join(colours(answer, word))].append(answer)
   return pattern
 
+"""
+From a list of words, give the word with the highest entropy, meaning the words that will
+give the most information regardless of the hint given.
+"""
 def best_entropy(words):
   information = defaultdict(int)
 
@@ -90,6 +95,9 @@ def best_entropy(words):
 
   return sorted(information, key=lambda x: information[x], reverse = True)[0]
 
+"""
+Different version of best_entropy.
+"""
 def best_entropy_trial(word_choices):
   information = defaultdict(int)
 
@@ -103,6 +111,10 @@ def best_entropy_trial(word_choices):
 
   return sorted(information, key=lambda x: information[x], reverse = True)[0]
 
+"""
+Given an answer, word, a hint on the answet, pattern, and another word, temp. The function will return true if
+temp satisfy the pattern based on word.
+"""
 def matches(word, pattern, temp):
   word_count = word_dict(word)
   temp_count = word_dict(temp)
@@ -135,6 +147,9 @@ def matches(word, pattern, temp):
 
   return True
 
+"""
+Provide a state and guess machine will provide the best answer.
+"""
 def guess_machine(state):
   immediate = None
 
@@ -183,6 +198,9 @@ def guess_machine(state):
     answer = best_entropy_trial(state.choices)
     return answer
 
+"""
+A simulation of the octordle game.
+"""
 def game():
   true_list = [GREEN for i in range(5)]
   answer = random.sample(WORDS, 8)
