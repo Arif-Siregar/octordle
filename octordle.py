@@ -70,7 +70,7 @@ def colours(word, temp):
   return temp
 
 """
-
+Given a guess, word 
 """
 def classification(word, word_list):
   pattern = defaultdict(list)
