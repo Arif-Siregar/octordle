@@ -89,3 +89,143 @@ def best_entropy(words):
       information[guess] += (-1 * (pattern[pat]/len(words)) * math.log((pattern[pat]/len(words)), 2))
 
   return sorted(information, key=lambda x: information[x], reverse = True)[0]
+
+def best_entropy_trial(word_choices):
+  information = defaultdict(int)
+
+  for words in word_choices:
+    for guess in words:
+      pattern = defaultdict(int)
+      for answer in words:
+        pattern["".join(colours(answer, guess))] += 1
+      for pat in pattern:
+        information[guess] += (-1 * (pattern[pat]/len(words)) * math.log((pattern[pat]/len(words)), 2))
+
+  return sorted(information, key=lambda x: information[x], reverse = True)[0]
+
+def matches(word, pattern, temp):
+  word_count = word_dict(word)
+  temp_count = word_dict(temp)
+
+  for char in word_count.keys():
+    for index in word_count[char][1]:
+      match pattern[index]:
+        case 'b':
+          word_count[char][0] -= 1
+          if temp[index] == word[index]:
+            return False
+        case 'y':
+          if temp[index] == word[index]:
+            return False
+        case 'g':
+          if temp[index] != word[index]:
+            return False
+
+  for char in word_count.keys():
+    if char in temp_count.keys():
+      if len(word_count[char][1]) != word_count[char][0]:
+        if word_count[char][0] != temp_count[char][0]:
+          return False
+      else:
+        if word_count[char][0] > temp_count[char][0]:
+          return False
+    else:
+      if word_count[char][0] != 0:
+        return False
+
+  return True
+
+def guess_machine(state):
+  immediate = None
+
+  if state.attempt == 0:
+    return "TARES"
+
+  elif state.attempt == 1:
+    pattern = classification(state.guess, state.choices)
+    state.choices = []
+
+    for hint in state.hint:
+      if hint:
+        pat = "".join(hint)
+        state.choices.append(pattern[pat])
+
+        if len(pattern[pat]) == 1:
+          immediate = pattern[pat][0]
+      else:
+        state.choices.append([])
+
+  else:
+    temp_choices = []
+    for i in range(len(state.choices)):
+      if state.hint[i]:
+        temp = []
+        for word in state.choices[i]:
+          if matches(state.guess, state.hint[i], word):
+            temp.append(word)
+        temp_choices.append(temp)
+
+        if len(temp) == 1:
+          immediate = temp[0]
+      else:
+        temp_choices.append([])
+    state.choices = temp_choices
+
+  if immediate:
+    return immediate
+
+  else:
+    #all_choices = []
+    #for choices in state.choices:
+      #for word in choices:
+        #if word not in all_choices:
+          #all_choices.append(word)
+    answer = best_entropy_trial(state.choices)
+    return answer
+
+def game():
+  true_list = [GREEN for i in range(5)]
+  answer = random.sample(WORDS, 8)
+  answer_correct = [False for ans in answer]
+  state = State()
+
+  for i in range(13):
+    guess = guess_machine(state)
+    # print(f"Enter a guess: {guess}")
+
+    # while guess not in WORDS:
+      # print("Word does not exist, try again!")
+      # guess = guess_machine(state)
+      # print(f"Enter a guess: {guess}")
+
+    # reply = ""
+    state.guess = guess
+    state.hint = []
+    state.attempt += 1
+
+    for j in range(len(answer)):
+      if not answer_correct[j]:
+        temp = colours(answer[j], guess)
+        # for k in range(len(temp)):
+          # reply += guess[k] + " " + temp[k] + " "
+        # reply += "| "
+
+        if temp == true_list:
+          answer_correct[j] = True
+          state.hint.append([])
+        else:
+          state.hint.append(temp)
+
+      else:
+        state.hint.append([])
+        # reply += 20 * " " + "| "
+
+    # print(reply)
+    if sum(answer_correct) == 8:
+      return 13 - state.attempt
+      # print("You won!!!")
+      break
+
+  if sum(answer_correct) != 8:
+    return (sum(answer_correct) - 8)
+    # print(f"You lose!!! You only got {sum(answer_correct)}")
